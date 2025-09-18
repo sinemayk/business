@@ -1,0 +1,600 @@
+{
+	"info": {
+		"_postman_id": "4d2ae2ca-943e-4d5d-9faa-5a17c26bf245",
+		"name": "EOCS-T828",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1555972",
+		"_collection_link": "https://interstellar-eocs.postman.co/workspace/eOCS~866d5192-de97-49ec-82d3-4bd25296b0f1/collection/1555972-4d2ae2ca-943e-4d5d-9faa-5a17c26bf245?action=share&source=collection_link&creator=1555972"
+	},
+	"item": [
+		{
+			"name": "UeDEI BAO Authenticate",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json()\r",
+							"//We are checking here if BAO user logged in successfully\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"//We are checking here if response is as expected\r",
+							"pm.test(\"Login is successful\", ()=>{\r",
+							"    pm.expect(response).to.be.an(\"object\")\r",
+							"    pm.expect(response).to.have.any.keys('access_token')\r",
+							"    \r",
+							"})\r",
+							"//If we get 403 status code, it means we did not choose default profile and it gives this code\r",
+							"pm.test('Check Status', () => {\r",
+							"    if(pm.response.code === 403) {\r",
+							"        console.log(\"You should set Default Authorization Profile of user first\")\r",
+							"    }\r",
+							"})\r",
+							"\r",
+							"pm.collectionVariables.set(\"UeDEI_access_token\", response.access_token)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Basic QkFPOjg2MTczZTE2LWMyMDctNGM3OC04ZTgwLWFmNDBlYWFlNmY5NA==",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "BAO",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "BAO",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://uedei.{{system}}-main.apps.ef-dev.at/v1/registerSession",
+					"protocol": "http",
+					"host": [
+						"uedei",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"v1",
+						"registerSession"
+					]
+				},
+				"description": "Login eITI of any system\n\nYou need to write the system name you would like to test in the following area.\n\n1. Click on EOCS-T2714 folder on left.\n2. Click Variables tab.\n3. Enter any system (for ex. master, titan, vega, etc.) in Current value field.\n    \n\n<img src=\"https://content.pstmn.io/23e67e88-f75b-40aa-bb3f-7580e4128b84/aW1hZ2UucG5n\" width=\"1132\" height=\"345\">\n\nClick on the picture to see it bigger.\n\nAfter sending request succesfully, check if the 'access_token' from response exist as in the following picture.\n\nAfter opening EOCS-T2714 directory and variables tab, look for eiti_access_token variable, if it does not exist ,add it and paste the copied access token value from first request in Current value field.\n\n<img src=\"https://content.pstmn.io/ae8bbe9a-d4fd-4aa7-8bee-e95cd9f05a2c/aW1hZ2UucG5n\" alt=\"Adding%20access%20token\">\n\nFor every request after eITI Authenticate request, you select Bearer token as Authorization type and write the token field {{eITI_access_token}} as in the above picture.\n\n<img src=\"https://content.pstmn.io/66146ce5-e2b3-4276-bbd6-b3a64565f408/aW1hZ2UucG5n\" alt=\"Authorization%20type%20for%20other%20requests\" width=\"318\" height=\"145\">\n\n_**_\n\nIf you get 403 code after sending this request, it means the user you are using has no Default Authorization Profile. You should assign one."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 1-Modified/Created Ones with Timestamp 1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UeDEI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://uedei.{{system}}-main.apps.ef-dev.at/v1/keywords/list?modifiedSince=2023-09-06T09:33:54.000Z",
+					"protocol": "http",
+					"host": [
+						"uedei",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"v1",
+						"keywords",
+						"list"
+					],
+					"query": [
+						{
+							"key": "modifiedSince",
+							"value": "2023-09-06T09:33:54.000Z"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 1-Deleted Ones with Timestamp1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UeDEI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://uedei.{{system}}-main.apps.ef-dev.at/v1/keywords/deleted?modifiedSince=2023-09-06T09:33:54.000Z",
+					"protocol": "https",
+					"host": [
+						"uedei",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"v1",
+						"keywords",
+						"deleted"
+					],
+					"query": [
+						{
+							"key": "modifiedSince",
+							"value": "2023-09-06T09:33:54.000Z"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 2-Modified/Created Ones with Timestamp 2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UeDEI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://uedei.{{system}}-main.apps.ef-dev.at/v1/keywords/list?modifiedSince=2023-09-06T09:33:06.000Z",
+					"protocol": "https",
+					"host": [
+						"uedei",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"v1",
+						"keywords",
+						"list"
+					],
+					"query": [
+						{
+							"key": "modifiedSince",
+							"value": "2023-09-06T09:33:06.000Z"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 2-Deleted Ones with Timestamp2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UeDEI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://uedei.{{system}}-main.apps.ef-dev.at/v1/keywords/deleted?modifiedSince=2023-09-06T09:33:06.000Z",
+					"protocol": "https",
+					"host": [
+						"uedei",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"v1",
+						"keywords",
+						"deleted"
+					],
+					"query": [
+						{
+							"key": "modifiedSince",
+							"value": "2023-09-06T09:33:06.000Z"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 3-Modified/Created Ones with Timestamp 3",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UeDEI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://uedei.{{system}}-main.apps.ef-dev.at/v1/keywords/list?modifiedSince=2023-09-06T09:32:32.000Z",
+					"protocol": "https",
+					"host": [
+						"uedei",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"v1",
+						"keywords",
+						"list"
+					],
+					"query": [
+						{
+							"key": "modifiedSince",
+							"value": "2023-09-06T09:32:32.000Z"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 3-Deleted Ones with Timestamp3",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UeDEI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://uedei.{{system}}-main.apps.ef-dev.at/v1/keywords/deleted?modifiedSince=2023-09-06T09:32:32.000Z",
+					"protocol": "https",
+					"host": [
+						"uedei",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"v1",
+						"keywords",
+						"deleted"
+					],
+					"query": [
+						{
+							"key": "modifiedSince",
+							"value": "2023-09-06T09:32:32.000Z"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 4-Modified/Created Ones with Timestamp 4",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UeDEI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://uedei.{{system}}-main.apps.ef-dev.at/v1/keywords/list?pageSize=1&modifiedSince=2023-09-06T09:31:36.000Z",
+					"protocol": "https",
+					"host": [
+						"uedei",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"v1",
+						"keywords",
+						"list"
+					],
+					"query": [
+						{
+							"key": "pageSize",
+							"value": "1"
+						},
+						{
+							"key": "modifiedSince",
+							"value": "2023-09-06T09:31:36.000Z"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 5-Modified/Created Ones with Timestamp 4",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UeDEI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://uedei.{{system}}-main.apps.ef-dev.at/v1/keywords/list?page=2&modifiedSince=2023-09-06T09:31:36.000Z",
+					"protocol": "https",
+					"host": [
+						"uedei",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"v1",
+						"keywords",
+						"list"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "2"
+						},
+						{
+							"key": "modifiedSince",
+							"value": "2023-09-06T09:31:36.000Z"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 6-Modified/Created Ones with Timestamp 4",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UeDEI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://uedei.{{system}}-main.apps.ef-dev.at/v1/keywords/list?pageSize=2&modifiedSince=2023-09-06T09:31:36.000Z",
+					"protocol": "https",
+					"host": [
+						"uedei",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"v1",
+						"keywords",
+						"list"
+					],
+					"query": [
+						{
+							"key": "pageSize",
+							"value": "2"
+						},
+						{
+							"key": "modifiedSince",
+							"value": "2023-09-06T09:31:36.000Z"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "system",
+			"value": "master"
+		},
+		{
+			"key": "UeDEI_access_token",
+			"value": ""
+		}
+	]
+}

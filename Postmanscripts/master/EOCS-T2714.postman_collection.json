@@ -1,0 +1,1913 @@
+{
+	"info": {
+		"_postman_id": "6ba52350-df92-4552-ac9c-2f71f3feffe4",
+		"name": "EOCS-T2714",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1555972"
+	},
+	"item": [
+		{
+			"name": "eITI Authenticate",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"  pm.test(\"System is not reachable\", () =>{\r",
+							"    if(pm.response.code!==200)\r",
+							"{postman.setNextRequest(null)}\r",
+							"});\r",
+							" \r",
+							"    let response = pm.response.json()\r",
+							"\r",
+							"//We are checking here if response is as expected\r",
+							"pm.test(\"Login is successful\", ()=>{\r",
+							"    pm.expect(response).to.be.an(\"object\")\r",
+							"    pm.expect(response).to.have.any.keys('access_token')\r",
+							"    pm.response.to.have.status(200);\r",
+							"    \r",
+							"})\r",
+							"\r",
+							"pm.collectionVariables.set(\"eITI_access_token\", response.access_token)\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Basic QkFPOjg2MTczZTE2LWMyMDctNGM3OC04ZTgwLWFmNDBlYWFlNmY5NA==",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "apiNormalTestUser",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "apiNormalTestUser",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://eiti.{{system}}-main.apps.ef-dev.at/v1/registerSession",
+					"protocol": "http",
+					"host": [
+						"eiti",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"v1",
+						"registerSession"
+					]
+				},
+				"description": "Login eITI of any system\n\nYou need to write the system name you would like to test in the following area.\n\n1. Click on EOCS-T2714 folder on left.\n2. Click Variables tab.\n3. Enter any system (for ex. master, titan, vega, etc.) in Current value field.\n    \n\n<img src=\"https://content.pstmn.io/23e67e88-f75b-40aa-bb3f-7580e4128b84/aW1hZ2UucG5n\" width=\"1132\" height=\"345\">\n\nClick on the picture to see it bigger.\n\nAfter sending request succesfully, check if the 'access_token' from response exist as in the following picture.\n\nAfter opening EOCS-T2714 directory and variables tab, look for eiti_access_token variable, if it does not exist ,add it and paste the copied access token value from first request in Current value field.\n\n<img src=\"https://content.pstmn.io/ae8bbe9a-d4fd-4aa7-8bee-e95cd9f05a2c/aW1hZ2UucG5n\" alt=\"Adding%20access%20token\">\n\nFor every request after eITI Authenticate request, you select Bearer token as Authorization type and write the token field {{eITI_access_token}} as in the above picture.\n\n<img src=\"https://content.pstmn.io/66146ce5-e2b3-4276-bbd6-b3a64565f408/aW1hZ2UucG5n\" alt=\"Authorization%20type%20for%20other%20requests\" width=\"318\" height=\"145\">\n\n_**_\n\nIf you get 403 code after sending this request, it means the user you are using has no Default Authorization Profile. You should assign one."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 1 Get Vehicles modifiedSince from now",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json()\r",
+							"//id of vehicle da2021c3-67ba-4b59-9b86-d0f6d950ea27\r",
+							"pm.test(\"The name of vehicle 'DonttouchItisforApitesting' is not updated yet \", ()=>{\r",
+							"pm.expect(JSON.stringify(response)).to.not.have.string(\"DonttouchItisforApitesting\")\r",
+							"})\r",
+							"    "
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"eITI_access_token\")\r",
+							"let currentTime = Math.floor(Date.now() / 1000)\r",
+							"\r",
+							"pm.collectionVariables.set(\"currentTime1\", currentTime)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{eITI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://eiti.{{system}}-main.apps.ef-dev.at/vehicles?modifiedSince={{currentTime1}}",
+					"protocol": "http",
+					"host": [
+						"eiti",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"vehicles"
+					],
+					"query": [
+						{
+							"key": "modifiedSince",
+							"value": "{{currentTime1}}",
+							"description": "Set current time"
+						}
+					]
+				},
+				"description": "We are getting updated vehicles from now.\n\nFor UNIX timestamp, you can use this website. [https://www.epochconverter.com/](https://www.epochconverter.com/You)\n\nYou can set the current time like Year, month and etc. with Local Time option in this site and copy \"Epoch timestamp\" value.\n\nPlease do not change 'system' variable. Just update the value of it like written in the documentation of first request.\n\nIf you get 401 code, it means you need to log in again and paste the updated access token again.\n\n#### **You have to update the \"svehicle39\" in the code of Tests tab if you like to use other vehicle in the system.**\n\nYou should not see your vehicle yet because you did not update anything about it."
+			},
+			"response": []
+		},
+		{
+			"name": "System Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json()\r",
+							"\r",
+							"//We are checking here if we logged in successfully and the response is as expected\r",
+							"pm.test(\"Login is successful\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.expect(response).to.be.an(\"object\")\r",
+							"    pm.expect(response).to.have.any.keys('authProfileId')\r",
+							"    pm.expect(response).to.have.any.keys('needPWChange')\r",
+							"\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\":\"apiNormalTestUser\",\"password\":\"apiNormalTestUser\"}"
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/login",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"login"
+					]
+				},
+				"description": "Please do not delete \"system\" variable. Just update it with the system you are testing in EOCS-T2662-Update Note field in Incident Brick folder ->Variables tab like in the picture.\n\nWith this request, we are logging. I**n this request, I used BAO user but you can change it in Body tab as in the picture.**\n\n<img src=\"https://content.pstmn.io/4f215a7f-edfc-4c90-a453-005e96bb436a/aW1hZ2UucG5n\" alt=\"User%20config\">\n\nIf you get 403 status code, you should select default auth profile for special user you are using.\n\nIf you get 400 status code, you should first logout. Just send Extra Step -Logout from System request."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 2-Update Vehicle",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"updatedName\",\"DonttouchItisforApitesting2\")\r",
+							"pm.collectionVariables.get(\"vehicleId\")"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"The name of the vehicle is updated to \" +pm.collectionVariables.get(\"updatedName\"), function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": \"{{vehicleId}}\",\r\n    \"name\": \"{{updatedName}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/vehicles/:vehicleId",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"vehicles",
+						":vehicleId"
+					],
+					"variable": [
+						{
+							"key": "vehicleId",
+							"value": "{{vehicleId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 3-Check Data History of Vehicle",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"let response = pm.response.json()\r",
+							"let modifiedTime = response.modified\r",
+							"\r",
+							"pm.collectionVariables.set(\"modifiedTime1\", modifiedTime)\r",
+							"\r",
+							"const wholeTime = modifiedTime.split(\"T\");\r",
+							"let part1=wholeTime[0];\r",
+							"let part2=wholeTime[1];\r",
+							"\r",
+							"const part2Detail = part2.split(\":\")\r",
+							"let hour=part2Detail[0];\r",
+							"let min=part2Detail[1];//it is the min of modified property of the response\r",
+							"\r",
+							"\r",
+							"let checkTime = new Date();\r",
+							"\r",
+							"pm.collectionVariables.set(\"checkTime\", checkTime.toISOString())\r",
+							"\r",
+							"let now = new Date();\r",
+							"let checkDay = now.getDay();\r",
+							"let checkHour = now.getHours();\r",
+							"let checkMinutes = now.getMinutes();//it is the min of this request\r",
+							"console.log(checkMinutes)\r",
+							"\r",
+							"pm.test(\"Last Change date has been updated\", ()=>{\r",
+							"    if (checkDay==wholeTime&&checkHour==hour&&checkMinutes<=min-1)\r",
+							"    {console.log(\"Last Change date has been updated\")}\r",
+							"        \r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"vehicleId\")"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/vehicles/historyInfo/:vehicleId",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"vehicles",
+						"historyInfo",
+						":vehicleId"
+					],
+					"variable": [
+						{
+							"key": "vehicleId",
+							"value": "{{vehicleId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "eITI Authenticate",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json()\r",
+							"\r",
+							"//We are checking here if response is as expected\r",
+							"pm.test(\"Login is successful\", ()=>{\r",
+							"    pm.expect(response).to.be.an(\"object\")\r",
+							"    pm.expect(response).to.have.any.keys('access_token')\r",
+							"    pm.response.to.have.status(200);\r",
+							"    \r",
+							"})\r",
+							"\r",
+							"pm.collectionVariables.set(\"eITI_access_token\", response.access_token)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Basic QkFPOjg2MTczZTE2LWMyMDctNGM3OC04ZTgwLWFmNDBlYWFlNmY5NA==",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "apiNormalTestUser",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "apiNormalTestUser",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://eiti.{{system}}-main.apps.ef-dev.at/v1/registerSession",
+					"protocol": "http",
+					"host": [
+						"eiti",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"v1",
+						"registerSession"
+					]
+				},
+				"description": "Login eITI of any system\n\nYou need to write the system name you would like to test in the following area.\n\n1. Click on EOCS-T2714 folder on left.\n2. Click Variables tab.\n3. Enter any system (for ex. master, titan, vega, etc.) in Current value field.\n    \n\n<img src=\"https://content.pstmn.io/23e67e88-f75b-40aa-bb3f-7580e4128b84/aW1hZ2UucG5n\" width=\"1132\" height=\"345\">\n\nClick on the picture to see it bigger.\n\nAfter sending request succesfully, check if the 'access_token' from response exist as in the following picture.\n\nAfter opening EOCS-T2714 directory and variables tab, look for eiti_access_token variable, if it does not exist ,add it and paste the copied access token value from first request in Current value field.\n\n<img src=\"https://content.pstmn.io/ae8bbe9a-d4fd-4aa7-8bee-e95cd9f05a2c/aW1hZ2UucG5n\" alt=\"Adding%20access%20token\">\n\nFor every request after eITI Authenticate request, you select Bearer token as Authorization type and write the token field {{eITI_access_token}} as in the above picture.\n\n<img src=\"https://content.pstmn.io/66146ce5-e2b3-4276-bbd6-b3a64565f408/aW1hZ2UucG5n\" alt=\"Authorization%20type%20for%20other%20requests\" width=\"318\" height=\"145\">\n\n_**_\n\nIf you get 403 code after sending this request, it means the user you are using has no Default Authorization Profile. You should assign one."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 4-At least 1 result with time of step 1 after change in Admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json()\r",
+							"const count = response.totalCount\r",
+							"\r",
+							"pm.test(\"At least 1 result is returned including the used vehicle(name) \", ()=>{\r",
+							"pm.expect(count).to.be.at.least(1)\r",
+							"pm.expect(JSON.stringify(response)).to.have.string(pm.collectionVariables.get(\"updatedName\"))\r",
+							"})\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"eITI_access_token\")\r",
+							"pm.collectionVariables.get(\"currentTime1\")"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{eITI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://eiti.{{system}}-main.apps.ef-dev.at/vehicles?modifiedSince={{currentTime1}}",
+					"protocol": "http",
+					"host": [
+						"eiti",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"vehicles"
+					],
+					"query": [
+						{
+							"key": "modifiedSince",
+							"value": "{{currentTime1}}",
+							"description": "Set time of Step 1"
+						}
+					]
+				},
+				"description": "We are getting updated vehicles from now.\n\nFor UNIX timestamp, you can use this wesite. [https://www.epochconverter.com/](https://www.epochconverter.com/You)\n\nYou can set the current time like Year, month and etc. with Local Time option in this site and copy \"Epoch timestamp\" value.\n\nPlease do not change 'system' variable. Just update the value of it like written in the documentation of first request.\n\nIf you get 401 code, it means you need to log in again and paste the updated access token again.\n\n#### **You have to update the \"svehicle39\" in the code of Tests tab if you like to use other vehicle in the system.**\n\nIn this step, you need to see at least one vehicle which should be your updated one after you updated it in admin in 1st step."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 5-Get Vehicles with modifiedSince=now",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response =pm.response.json()\r",
+							"\r",
+							"pm.test(\"The name of vehicle is not updated from NOW\", ()=>{\r",
+							"pm.expect(JSON.stringify(response)).to.not.have.string(pm.collectionVariables.get(\"updatedName\"))\r",
+							"\r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"eITI_access_token\")\r",
+							"\r",
+							"let currentTime = Math.floor(Date.now() / 1000)\r",
+							"\r",
+							"pm.collectionVariables.set(\"currentTime5\", currentTime)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{eITI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://eiti.{{system}}-main.apps.ef-dev.at/vehicles?modifiedSince={{currentTime5}}",
+					"protocol": "http",
+					"host": [
+						"eiti",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"vehicles"
+					],
+					"query": [
+						{
+							"key": "modifiedSince",
+							"value": "{{currentTime5}}",
+							"description": "Set current time"
+						}
+					]
+				},
+				"description": "We are getting updated vehicles from now.\n\nFor UNIX timestamp, you can use this website. [https://www.epochconverter.com/](https://www.epochconverter.com/You)\n\nYou can set the current time like Year, month and etc. with Local Time option in this site and copy \"Epoch timestamp\" value.\n\nPlease do not change 'system' variable. Just update the value of it like written in the documentation of first request.\n\nIf you get 401 code, it means you need to log in again and paste the updated access token again.\n\n#### **You have to update the \"svehicle39\" in the code of Tests tab if you like to use other vehicle in the system.**\n\nYou should not see your vehicle because you did not update anything about it **from NOW**."
+			},
+			"response": []
+		},
+		{
+			"name": "System Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json()\r",
+							"\r",
+							"//We are checking here if we logged in successfully and the response is as expected\r",
+							"pm.test(\"Login is successful\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.expect(response).to.be.an(\"object\")\r",
+							"    pm.expect(response).to.have.any.keys('authProfileId')\r",
+							"    pm.expect(response).to.have.any.keys('needPWChange')\r",
+							"\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\":\"apiNormalTestUser\",\"password\":\"apiNormalTestUser\"}"
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/login",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"login"
+					]
+				},
+				"description": "Please do not delete \"system\" variable. Just update it with the system you are testing in EOCS-T2662-Update Note field in Incident Brick folder ->Variables tab like in the picture.\n\nWith this request, we are logging. I**n this request, I used BAO user but you can change it in Body tab as in the picture.**\n\n<img src=\"https://content.pstmn.io/4f215a7f-edfc-4c90-a453-005e96bb436a/aW1hZ2UucG5n\" alt=\"User%20config\">\n\nIf you get 403 status code, you should select default auth profile for special user you are using.\n\nIf you get 400 status code, you should first logout. Just send Extra Step -Logout from System request."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Vehicle",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"vehicleId\")"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Checking vehicle status\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    if(jsonData.elements[0].calculatedStatus.name!=\"1 Einsatzbereit auf Streife\"){\r",
+							"    const baseUrl =\"https://master-main.apps.ef-dev.at/api/resourcestate/setStatus/9be806aa-cbc7-4294-831e-13c0eec99df2\"\r",
+							"        const postRequest = {\r",
+							"        url: \"baseUrl\",\r",
+							"        method: 'POST',\r",
+							"        header: {\r",
+							"            'Content-Type': 'application/json',\r",
+							"            'X-Foo': 'bar'\r",
+							"        },\r",
+							"        body: {\r",
+							"    \r",
+							"                }\r",
+							"        };\r",
+							"        pm.sendRequest(postRequest, (error, response) => {\r",
+							"        console.log(error ? error : response.json());\r",
+							"    });\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/vehicles?id={{vehicleId}}",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"vehicles"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "{{vehicleId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 6-Set status to the Vehicle",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"vehicleId\")"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"The status of vehicle is updated\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\"{{vehicleId}}\"]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/resourcestate/setStatus/216665ab-2f5c-4e43-bbfc-4b68344d8e5c",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"resourcestate",
+						"setStatus",
+						"216665ab-2f5c-4e43-bbfc-4b68344d8e5c"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 7-Recheck Data History of Vehicle",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json()\r",
+							"let modifiedTime = response.modified\r",
+							"\r",
+							"pm.collectionVariables.set(\"modifiedTime2\", modifiedTime)\r",
+							"\r",
+							"pm.test(\"Last Change date has not been updated\" , function () {\r",
+							"    pm.expect(pm.collectionVariables.get(\"modifiedTime1\", pm.collectionVariables.get(\"modifiedTime2\")));\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"vehicleId\")"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/vehicles/historyInfo/:vehicleId",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"vehicles",
+						"historyInfo",
+						":vehicleId"
+					],
+					"variable": [
+						{
+							"key": "vehicleId",
+							"value": "{{vehicleId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 8-At least 1 result with time of step 5 after status change",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json()\r",
+							"const count = response.totalCount\r",
+							"\r",
+							"pm.test(\"At least 1 result is returned including the used vehicle(status) \", ()=>{\r",
+							"pm.expect(count).to.be.at.least(1)\r",
+							"pm.expect(JSON.stringify(response)).to.have.string(pm.collectionVariables.get(\"updatedName\"))\r",
+							"})\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"eITI_access_token\")\r",
+							"pm.collectionVariables.get(\"currentTime5\")"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{eITI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://eiti.{{system}}-main.apps.ef-dev.at/vehicles?modifiedSince={{currentTime5}}",
+					"protocol": "http",
+					"host": [
+						"eiti",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"vehicles"
+					],
+					"query": [
+						{
+							"key": "modifiedSince",
+							"value": "{{currentTime5}}",
+							"description": "Set time of Step 5"
+						}
+					]
+				},
+				"description": "We are getting updated vehicles from now.\n\nFor UNIX timestamp, you can use this wesite. [https://www.epochconverter.com/](https://www.epochconverter.com/You)\n\nYou can set the current time like Year, month and etc. with Local Time option in this site and copy \"Epoch timestamp\" value.\n\nPlease do not change 'system' variable. Just update the value of it like written in the documentation of first request.\n\nIf you get 401 code, it means you need to log in again and paste the updated access token again.\n\n#### **You have to update the \"svehicle39\" in the code of Tests tab if you like to use other vehicle in the system.**\n\nIn this step, you need to see at least one vehicle which should be your updated one after you changed its state in 5th step."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 9-Get Vehicles with modifiedSince=now",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response =pm.response.json()\r",
+							"\r",
+							"pm.test(\"The name of vehicle is not updated from NOW\", ()=>{\r",
+							"pm.expect(JSON.stringify(response)).to.not.have.string(pm.collectionVariables.get(\"updatedName\"))\r",
+							"\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"eITI_access_token\")\r",
+							"let currentTime = Math.floor(Date.now() / 1000)\r",
+							"\r",
+							"pm.collectionVariables.set(\"currentTime9\", currentTime)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{eITI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://eiti.{{system}}-main.apps.ef-dev.at/vehicles?modifiedSince={{currentTime9}}",
+					"protocol": "http",
+					"host": [
+						"eiti",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"vehicles"
+					],
+					"query": [
+						{
+							"key": "modifiedSince",
+							"value": "{{currentTime9}}",
+							"description": "Set current time"
+						}
+					]
+				},
+				"description": "We are getting updated vehicles from now.\n\nFor UNIX timestamp, you can use this website. [https://www.epochconverter.com/](https://www.epochconverter.com/You)\n\nYou can set the current time like Year, month and etc. with Local Time option in this site and copy \"Epoch timestamp\" value.\n\nPlease do not change 'system' variable. Just update the value of it like written in the documentation of first request.\n\nIf you get 401 code, it means you need to log in again and paste the updated access token again.\n\n#### **You have to update the \"svehicle39\" in the code of Tests tab if you like to use other vehicle in the system.**\n\nYou should not see your vehicle because you did not update anything about it **from NOW**."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 10-Send instruction to the Vehicle",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"vehicleId\")"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"The instruction is sent to the vehicle\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\"{{vehicleId}}\"]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/resourcestate/setStatus/8c726ad0-294b-4281-911e-f7f8521369b1",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"resourcestate",
+						"setStatus",
+						"8c726ad0-294b-4281-911e-f7f8521369b1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 11-Recheck Data History of Vehicle",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json()\r",
+							"let modifiedTime = response.modified\r",
+							"\r",
+							"pm.collectionVariables.set(\"modifiedTime3\", modifiedTime)\r",
+							"\r",
+							"pm.test(\"Last Change date has not been updated\" , function () {\r",
+							"    pm.expect(pm.collectionVariables.get(\"modifiedTime1\", pm.collectionVariables.get(\"modifiedTime3\")));\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"vehicleId\")"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/vehicles/historyInfo/:vehicleId",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"vehicles",
+						"historyInfo",
+						":vehicleId"
+					],
+					"variable": [
+						{
+							"key": "vehicleId",
+							"value": "{{vehicleId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 12-At least 1 result with time of step 9 after sending instruction",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json()\r",
+							"const count = response.totalCount\r",
+							"\r",
+							"pm.test(\"At least 1 result is returned including the used vehicle(instruction) \", ()=>{\r",
+							"pm.expect(count).to.be.at.least(1)\r",
+							"pm.expect(JSON.stringify(response)).to.have.string(pm.collectionVariables.get(\"updatedName\"))\r",
+							"})\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"eITI_access_token\")\r",
+							"pm.collectionVariables.get(\"currentTime9\")"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{eITI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://eiti.{{system}}-main.apps.ef-dev.at/vehicles?modifiedSince={{currentTime9}}",
+					"protocol": "http",
+					"host": [
+						"eiti",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"vehicles"
+					],
+					"query": [
+						{
+							"key": "modifiedSince",
+							"value": "{{currentTime9}}",
+							"description": "Set time of Step 9"
+						}
+					]
+				},
+				"description": "We are getting updated vehicles from now.\n\nFor UNIX timestamp, you can use this wesite. [https://www.epochconverter.com/](https://www.epochconverter.com/You)\n\nYou can set the current time like Year, month and etc. with Local Time option in this site and copy \"Epoch timestamp\" value.\n\nPlease do not change 'system' variable. Just update the value of it like written in the documentation of first request.\n\nIf you get 401 code, it means you need to log in again and paste the updated access token again.\n\n#### **You have to update the \"svehicle39\" in the code of Tests tab if you like to use other vehicle in the system.**\n\nIn this step, you need to see at least one vehicle which should be your updated one after you sent instruction to the vehicle in 9th step.\n\nThe modified time has to be same with the 9th step, otherwise you don\\`t see your vehicle."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 13-Get Vehicles with modifiedSince=now",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response =pm.response.json()\r",
+							"\r",
+							"pm.test(\"The name of vehicle is not updated from NOW\", ()=>{\r",
+							"pm.expect(JSON.stringify(response)).to.not.have.string(pm.collectionVariables.get(\"updatedName\"))\r",
+							"\r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"eITI_access_token\")\r",
+							"let currentTime = Math.floor(Date.now() / 1000)\r",
+							"\r",
+							"pm.collectionVariables.set(\"currentTime13\", currentTime)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{eITI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://eiti.{{system}}-main.apps.ef-dev.at/vehicles?modifiedSince={{currentTime13}}",
+					"protocol": "http",
+					"host": [
+						"eiti",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"vehicles"
+					],
+					"query": [
+						{
+							"key": "modifiedSince",
+							"value": "{{currentTime13}}",
+							"description": "Set current time"
+						}
+					]
+				},
+				"description": "We are getting updated vehicles from now.\n\nFor UNIX timestamp, you can use this website. [https://www.epochconverter.com/](https://www.epochconverter.com/You)\n\nYou can set the current time like Year, month and etc. with Local Time option in this site and copy \"Epoch timestamp\" value.\n\nPlease do not change 'system' variable. Just update the value of it like written in the documentation of first request.\n\nIf you get 401 code, it means you need to log in again and paste the updated access token again.\n\n#### **You have to update the \"svehicle39\" in the code of Tests tab if you like to use other vehicle in the system.**\n\nYou should not see your vehicle because you did not update anything about it **from NOW**."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 14-Clear last instruction",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"The last instruction is cleared from \"+pm.collectionVariables.get(\"vehicleName\"), function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"vehicleId\")\r",
+							"pm.collectionVariables.get(\"updatedName\")"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\"{{vehicleId}}\"]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/resourcestate/clearInstruction",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"resourcestate",
+						"clearInstruction"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 15-Recheck Data History of Vehicle",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json()\r",
+							"let modifiedTime = response.modified\r",
+							"\r",
+							"pm.collectionVariables.set(\"modifiedTime2\", modifiedTime)\r",
+							"\r",
+							"pm.test(\"Last Change date has not been updated\" , function () {\r",
+							"    pm.expect(pm.collectionVariables.get(\"modifiedTime1\", pm.collectionVariables.get(\"modifiedTime2\")));\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"vehicleId\")"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/vehicles/historyInfo/:vehicleId",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"vehicles",
+						"historyInfo",
+						":vehicleId"
+					],
+					"variable": [
+						{
+							"key": "vehicleId",
+							"value": "{{vehicleId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 16-At least 1 result with time of step 13 after clearing last sent instruction",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json()\r",
+							"const count = response.totalCount\r",
+							"\r",
+							"pm.test(\"At least 1 result is returned including the used vehicle(clear instruction) \", ()=>{\r",
+							"pm.expect(count).to.be.at.least(1)\r",
+							"pm.expect(JSON.stringify(response)).to.have.string(pm.collectionVariables.get(\"updatedName\"))\r",
+							"})\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"eITI_access_token\")\r",
+							"pm.collectionVariables.get(\"currentTime13\")"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{eITI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://eiti.{{system}}-main.apps.ef-dev.at/vehicles?modifiedSince={{currentTime13}}",
+					"protocol": "http",
+					"host": [
+						"eiti",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"vehicles"
+					],
+					"query": [
+						{
+							"key": "modifiedSince",
+							"value": "{{currentTime13}}",
+							"description": "Set time of Step 13"
+						}
+					]
+				},
+				"description": "We are getting updated vehicles from now.\n\nFor UNIX timestamp, you can use this wesite. [https://www.epochconverter.com/](https://www.epochconverter.com/You)\n\nYou can set the current time like Year, month and etc. with Local Time option in this site and copy \"Epoch timestamp\" value.\n\nPlease do not change \"system\" variable. Just update the value of it.\n\nIn this step, you need to see at least one vehicle which should be your updated one after you cleared the last instruction of the vehicle in 13th step.\n\nThe modified time has to be same with the 13th step, otherwise you don\\`t see your vehicle."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 17-Get Vehicles with modifiedSince=now",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response =pm.response.json()\r",
+							"\r",
+							"pm.test(\"The name of vehicle is not updated from NOW\", ()=>{\r",
+							"pm.expect(JSON.stringify(response)).to.not.have.string(pm.collectionVariables.get(\"updatedName\"))\r",
+							"\r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"eITI_access_token\")\r",
+							"let currentTime = Math.floor(Date.now() / 1000)\r",
+							"\r",
+							"pm.collectionVariables.set(\"currentTime17\", currentTime)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{eITI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://eiti.{{system}}-main.apps.ef-dev.at/vehicles?modifiedSince={{currentTime17}}",
+					"protocol": "http",
+					"host": [
+						"eiti",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"vehicles"
+					],
+					"query": [
+						{
+							"key": "modifiedSince",
+							"value": "{{currentTime17}}",
+							"description": "Set current time"
+						}
+					]
+				},
+				"description": "We are getting updated vehicles from now.\n\nFor UNIX timestamp, you can use this website. [https://www.epochconverter.com/](https://www.epochconverter.com/You)\n\nYou can set the current time like Year, month and etc. with Local Time option in this site and copy \"Epoch timestamp\" value.\n\nPlease do not change 'system' variable. Just update the value of it like written in the documentation of first request.\n\nIf you get 401 code, it means you need to log in again and paste the updated access token again.\n\n#### **You have to update the \"svehicle39\" in the code of Tests tab if you like to use other vehicle in the system.**\n\nYou should not see your vehicle because you did not update anything about it **from NOW**."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 18-Send Location(Different than TC)",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"vehicleId\")"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Location of the vehicle is set\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"positionWgs84\":\"49.609931,8.811035\",\"resourceId\":\"{{vehicleId}}\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/resourceposition",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"resourceposition"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 19-Recheck Data History of Vehicle",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json()\r",
+							"let modifiedTime = response.modified\r",
+							"\r",
+							"pm.collectionVariables.set(\"modifiedTime2\", modifiedTime)\r",
+							"\r",
+							"pm.test(\"Last Change date has not been updated\" , function () {\r",
+							"    pm.expect(pm.collectionVariables.get(\"modifiedTime1\", pm.collectionVariables.get(\"modifiedTime2\")));\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"vehicleId\")"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/vehicles/historyInfo/:vehicleId",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"vehicles",
+						"historyInfo",
+						":vehicleId"
+					],
+					"variable": [
+						{
+							"key": "vehicleId",
+							"value": "{{vehicleId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 20-At least 1 result with time of step 17 after sending GPS location",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json()\r",
+							"const count = response.totalCount\r",
+							"\r",
+							"pm.test(\"At least 1 result is returned including the used vehicle(location) \", ()=>{\r",
+							"pm.expect(count).to.be.at.least(1)\r",
+							"pm.expect(JSON.stringify(response)).to.have.string(pm.collectionVariables.get(\"updatedName\"))\r",
+							"})\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"eITI_access_token\")\r",
+							"pm.collectionVariables.get(\"currentTime17\")"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{eITI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://eiti.{{system}}-main.apps.ef-dev.at/vehicles?modifiedSince={{currentTime17}}",
+					"protocol": "http",
+					"host": [
+						"eiti",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"vehicles"
+					],
+					"query": [
+						{
+							"key": "modifiedSince",
+							"value": "{{currentTime17}}",
+							"description": "Set time of Step 17"
+						}
+					]
+				},
+				"description": "We are getting updated vehicles from now.\n\nFor UNIX timestamp, you can use this wesite. [https://www.epochconverter.com/](https://www.epochconverter.com/You)\n\nYou can set the current time like Year, month and etc. with Local Time option in this site and copy \"Epoch timestamp\" value.\n\nPlease do not change \"system\" variable. Just update the value of it.\n\nIn this step, you need to see at least one vehicle which should be your updated one after you sent GPS location in 17th step.\n\nThe modified time has to be same with the 17th step, otherwise you don\\`t see your vehicle."
+			},
+			"response": []
+		},
+		{
+			"name": "Post-Set name of Vehicle",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"firstName\",\"DonttouchItisforApitesting\")\r",
+							"pm.collectionVariables.get(\"vehicleId\")"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"The name of the vehicle is updated to \" +pm.collectionVariables.get(\"firstName\"), function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": \"{{vehicleId}}\",\r\n    \"name\": \"{{firstName}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/vehicles/:vehicleId",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"vehicles",
+						":vehicleId"
+					],
+					"variable": [
+						{
+							"key": "vehicleId",
+							"value": "{{vehicleId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post-Reset status of the Vehicle",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"vehicleId\")"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"The status of vehicle is reset\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest(null)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\"{{vehicleId}}\"]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/resourcestate/setStatus/9be806aa-cbc7-4294-831e-13c0eec99df2",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"resourcestate",
+						"setStatus",
+						"9be806aa-cbc7-4294-831e-13c0eec99df2"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"pm.collectionVariables.set(\"vehicleId\",\"7b14c169-a90e-4b64-89be-c0f3742a2720\")"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "system",
+			"value": "master",
+			"disabled": true
+		},
+		{
+			"key": "eITI_access_token",
+			"value": ""
+		},
+		{
+			"key": "vehicleId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "updatedName",
+			"value": ""
+		},
+		{
+			"key": "checkTime",
+			"value": ""
+		},
+		{
+			"key": "now",
+			"value": ""
+		},
+		{
+			"key": "modifiedTime1",
+			"value": ""
+		},
+		{
+			"key": "firstName",
+			"value": ""
+		},
+		{
+			"key": "currentTime",
+			"value": ""
+		},
+		{
+			"key": "modifiedTime2",
+			"value": ""
+		},
+		{
+			"key": "modifiedTime3",
+			"value": ""
+		},
+		{
+			"key": "currentTime1",
+			"value": ""
+		},
+		{
+			"key": "currentTime5",
+			"value": ""
+		},
+		{
+			"key": "currentTime9",
+			"value": ""
+		},
+		{
+			"key": "currentTime13",
+			"value": ""
+		},
+		{
+			"key": "currentTime17",
+			"value": ""
+		}
+	]
+}

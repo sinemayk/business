@@ -1,0 +1,1185 @@
+{
+	"info": {
+		"_postman_id": "9823714c-6a57-417b-8ef8-e992058e6e73",
+		"name": "EOCS-T3417(Eros)",
+		"description": "# 🧪 Get started here\n\nThis template helps ensure your API continues to work as expected after updates or changes. It contains sample requests for a series of tests that validate different aspects of an API, including:\n\n1. **Status code verification:** We'll check if the API returns the expected status codes for various requests, ensuring reliability and proper error handling.\n2. **JSON schema verification:** We'll make sure the JSON response conforms to a specified JSON Schema, ensuring API contracts are honored.\n3. **Response time verification:** We'll verify that the API's response time is within the acceptable range, providing a smooth user experience and optimizing performance.\n4. **Response body verification:** We'll validate the structure and content of the response body for accuracy, ensuring the integrity of the data and preventing potential issues downstream.\n5. **Header verification:** We'll confirm the presence and correct values of specific headers in the response, enabling secure and well-structured communication between your app and its users.\n    \n\n## 🔖 **How to use this template**\n\n**Step 1:** Send the sample requests and view the response and test results.\n\n**Step 2:** Replace the sample request URLs with your desired API endpoints.\n\n**Step 3:** Customize the tests in the \"Tests\" tab if needed. Don't forget to save your changes.\n\n**Step 4:** Run the collection by selecting \"Run\".\n\n<img src=\"https://content.pstmn.io/666cfa65-6e00-4308-871b-f831128bc0ac/Y29sbGVjdGlvbi1ydW5uZXItYnV0dG9uLmpwZWc=\" width=\"246\" height=\"102\">\n\n### ℹ️ Resources\n\n[Scripting in Postman](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/)\n\n[Test script examples](https://learning.postman.com/docs/writing-scripts/script-references/test-examples/)\n\n[Postman Sandbox API reference](https://learning.postman.com/docs/sending-requests/grpc/postman-sandbox-api/#writing-assertions)\n\n[Using the Collection Runner](https://learning.postman.com/docs/collections/running-collections/intro-to-collection-runs/)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1555972"
+	},
+	"item": [
+		{
+			"name": "Step 1-System Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"System is not reachable\", () =>{\r",
+							"    if(pm.response.code!==200)\r",
+							"{postman.setNextRequest(null)}\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json()\r",
+							"\r",
+							"//We are checking here if we logged in successfully and the response is as expected\r",
+							"pm.test(\"Login is successful\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.expect(response).to.be.an(\"object\")\r",
+							"    pm.expect(response).to.have.any.keys('authProfileId')\r",
+							"    pm.expect(response).to.have.any.keys('needPWChange')\r",
+							"\r",
+							"});\r",
+							"\r",
+							"//If we get 403 status code, it means we do not have default auth profile\r",
+							"pm.test('Check Status 403', () => {\r",
+							"    if(pm.response.code === 403) {\r",
+							"        console.log(\"You should set Default Authorization Profile of user first\")\r",
+							"    }\r",
+							"})\r",
+							"\r",
+							"//If we get 400 status code, it means you should logout first\r",
+							"pm.test('Check Status 400', () => {\r",
+							"    if(pm.response.code === 400) {\r",
+							"        console.log(\"You should logout first\")\r",
+							"    }\r",
+							"})\r",
+							"\r",
+							"//If we get 503 status code, it means system is down\r",
+							"pm.test('Check Status 503', () => {\r",
+							"    if(pm.response.code === 503) {\r",
+							"        console.log(\"System is down\")\r",
+							"    }\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\":\"apiNormalTestUser\",\"password\":\"apiNormalTestUser\"}"
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/login",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"login"
+					]
+				},
+				"description": "Please do not delete \"system\" variable. Just update it with the system you are testing in EOCS-T1661 folder Variables tab like in the picture.\n\n<img src=\"https://content.pstmn.io/6eaba942-7f7c-44ce-9995-c8193ab0ca19/aW1hZ2UucG5n\" alt=\"Variables%20of%20collection\">\n\nWith this request, we are logging with special user. **In this request, I used BAO user but you can change it in Body tab as in the picture.**\n\n<img src=\"https://content.pstmn.io/4f215a7f-edfc-4c90-a453-005e96bb436a/aW1hZ2UucG5n\" alt=\"Special%20user%20config\">\n\nIf you get 403 status code, you should select default auth profile for special user you are using.\n\nIf you get 400 status code, you should first logout. Just send Extra Step -Logout from System request."
+			},
+			"response": []
+		},
+		{
+			"name": "Pre-Get Vehicle",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json()\r",
+							"\r",
+							"for (const element of response.elements) {\r",
+							"  if (\"displayVehicleType\" in element) {\r",
+							"    pm.collectionVariables.set(\"vehicleId\", element.id)\r",
+							"    pm.collectionVariables.set(\"vehicleName\", element.name)\r",
+							"    pm.collectionVariables.set(\"Type1\", element.displayVehicleType.name)\r",
+							"    pm.collectionVariables.set(\"Type1Id\", element.displayVehicleType.id)\r",
+							"\r",
+							"    break; // Stop looking once the key is found\r",
+							"  }\r",
+							"}\r",
+							"pm.test(pm.collectionVariables.get(\"vehicleName\")+ \" is selected\", function () {\r",
+							"  pm.expect(pm.response.code).to.equal(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"The elements array is present and contains at least one element\", function () {\r",
+							"  const responseData = pm.response.json();\r",
+							"  \r",
+							"  pm.expect(responseData.elements).to.exist.and.to.be.an('array').with.lengthOf.at.least(1);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Total count is a non-negative integer\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"    \r",
+							"    pm.expect(responseData.totalCount).to.be.a('number');\r",
+							"    pm.expect(responseData.totalCount).to.be.at.least(0, \"Total count should be non-negative\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/vehicles?ermSearch=true&allocationStatus%5B0%5D=FREE&statusId%5B0%5D=9be806aa-cbc7-4294-831e-13c0eec99df2&startRow=0&size=50&sort=displayName%3Aasc",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"vehicles"
+					],
+					"query": [
+						{
+							"key": "ermSearch",
+							"value": "true"
+						},
+						{
+							"key": "allocationStatus%5B0%5D",
+							"value": "FREE"
+						},
+						{
+							"key": "statusId%5B0%5D",
+							"value": "9be806aa-cbc7-4294-831e-13c0eec99df2"
+						},
+						{
+							"key": "startRow",
+							"value": "0"
+						},
+						{
+							"key": "size",
+							"value": "50"
+						},
+						{
+							"key": "sort",
+							"value": "displayName%3Aasc"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 1.4-Change Temp Name of Vehicle",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"tempName1\", \"apiVehicleTempName\")\r",
+							"\r",
+							"pm.test(\"Temp Name of \"+pm.collectionVariables.get(\"vehicleName\")+ \" has changed to \"+pm.collectionVariables.get(\"tempName1\"), function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"vehicleId\")"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "apiVehicleTempName",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/resources/:vehicleId/temporaryname",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"resources",
+						":vehicleId",
+						"temporaryname"
+					],
+					"variable": [
+						{
+							"key": "vehicleId",
+							"value": "{{vehicleId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 1.5-Create Incident",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"incidentId\", pm.response.json().id)\r",
+							"pm.collectionVariables.set(\"incidentA\", pm.response.json().number)\r",
+							"\r",
+							"pm.test(pm.collectionVariables.get(\"incidentA\")+ \" is created\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/incidents",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"incidents"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 2.1-Allocate Vehicle",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"incidentId\")\r",
+							"pm.collectionVariables.get(\"vehicleId\")\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(pm.collectionVariables.get(\"vehicleName\")+ \" (\"+pm.collectionVariables.get(\"tempName1\")+\") is allocated to \" +pm.collectionVariables.get(\"incidentA\"), function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"resourceIds\": [\r\n        \"{{vehicleId}}\"\r\n    ],\r\n    \"incidentId\": \"{{incidentId}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/incidents/:incidentId/allocatedResources/multiple",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"incidents",
+						":incidentId",
+						"allocatedResources",
+						"multiple"
+					],
+					"variable": [
+						{
+							"key": "incidentId",
+							"value": "{{incidentId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 2.2-Alert Vehicle",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(pm.collectionVariables.get(\"vehicleName\")+ \" (\"+pm.collectionVariables.get(\"tempName1\")+\") is alerted to \" +pm.collectionVariables.get(\"incidentA\"), function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/incidents/:incidentId/allocatedResources/alarm",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"incidents",
+						":incidentId",
+						"allocatedResources",
+						"alarm"
+					],
+					"variable": [
+						{
+							"key": "incidentId",
+							"value": "{{incidentId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 3-Release Vehicle",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"incidentId\")\r",
+							"pm.collectionVariables.get(\"vehicleId\")"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(pm.collectionVariables.get(\"vehicleName\")+ \" (\"+pm.collectionVariables.get(\"tempName1\")+\") is released from \" +pm.collectionVariables.get(\"incidentA\"), function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"resourceIds\": [\r\n        \"{{vehicleId}}\"\r\n    ],\r\n    \"incidentId\": \"{{incidentId}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/incidents/:incidentId/allocatedResources/deallocate/multiple",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"incidents",
+						":incidentId",
+						"allocatedResources",
+						"deallocate",
+						"multiple"
+					],
+					"variable": [
+						{
+							"key": "incidentId",
+							"value": "{{incidentId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Vehicle Assignment Id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"   var jsonData = pm.response.json();\r",
+							"   let count = jsonData.elements.length\r",
+							"\r",
+							"    if(count>1){\r",
+							"    \r",
+							"\r",
+							"    for (let i=1;i<count;i++)\r",
+							"       \r",
+							"    {   \r",
+							"        pm.collectionVariables.set(\"id\",jsonData.elements[i].id)\r",
+							"        console.log(pm.collectionVariables.get(\"id\"))\r",
+							"\r",
+							"    const baseUrl =\"https://eros-main.apps.ef-dev.at/api/vehicles/\"+pm.collectionVariables.get(\"vehicleId\")+\"/vehicletypeassignments/\"+pm.collectionVariables.get(\"id\")\r",
+							"        const deleteRequest = {\r",
+							"        url: baseUrl,\r",
+							"        method: 'DELETE',\r",
+							"        header: {\r",
+							"            'Content-Type': 'application/json',\r",
+							"            'X-Foo': 'bar'\r",
+							"        },\r",
+							"        body: {\r",
+							"    \r",
+							"                }\r",
+							"        };\r",
+							"        pm.sendRequest(deleteRequest, (error, response) => {\r",
+							"        console.log(error ? error : response.json());\r",
+							"    });\r",
+							"\r",
+							"  \r",
+							"\r",
+							"}}\r",
+							"\r",
+							"pm.collectionVariables.set(\"vehicleTypeAssignmentId\", jsonData.elements[0].id)\r",
+							" \r",
+							" pm.test(\"Vehicle Type Assignment Id of \" +pm.collectionVariables.get(\"vehicleName\")+ \" is set and it is \" +pm.collectionVariables.get(\"vehicleTypeAssignmentId\"), function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/vehicles/:vehicleId/vehicletypeassignments?sort=priority%3Aasc%3B&size=100&startRow=0",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"vehicles",
+						":vehicleId",
+						"vehicletypeassignments"
+					],
+					"query": [
+						{
+							"key": "sort",
+							"value": "priority%3Aasc%3B"
+						},
+						{
+							"key": "size",
+							"value": "100"
+						},
+						{
+							"key": "startRow",
+							"value": "0"
+						}
+					],
+					"variable": [
+						{
+							"key": "vehicleId",
+							"value": "{{vehicleId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 4-Update Vehicle Type",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"Type2\",\"Draisine\")\r",
+							"\r",
+							"pm.test(\"Type of \"+pm.collectionVariables.get(\"vehicleName\")+ \" has changed to \"+pm.collectionVariables.get(\"Type2\"), function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"vehicleName\")\r",
+							"pm.collectionVariables.get(\"vehicleTypeAssignmentId\")\r",
+							"pm.collectionVariables.get(\"Type1\")"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"commandCenterId\": \"95a29724-0ef0-4e3e-a3b3-9c6f1602865e\",\r\n    \"id\": \"{{vehicleTypeAssignmentId}}\",\r\n    \"name\": \"{{vehicleName}} -> {{Type1}}\",\r\n    \"parentId\": \"{{vehicleId}}\",\r\n    \"priority\": \"0\",\r\n    \"resourceType\": {\r\n        \"id\": \"f81bb8a0-6704-4265-b866-3a4ab6c4f82e\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/vehicles/:vehicleId/vehicletypeassignments/:vehicleTypeAssignmentId",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"vehicles",
+						":vehicleId",
+						"vehicletypeassignments",
+						":vehicleTypeAssignmentId"
+					],
+					"variable": [
+						{
+							"key": "vehicleId",
+							"value": "{{vehicleId}}"
+						},
+						{
+							"key": "vehicleTypeAssignmentId",
+							"value": "{{vehicleTypeAssignmentId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 4.1-Change Temp Name of Vehicle",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Temp Name of \"+pm.collectionVariables.get(\"vehicleName\")+ \" has changed to \"+pm.collectionVariables.get(\"tempName2\"), function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"vehicleId\")\r",
+							"\r",
+							"pm.collectionVariables.set(\"tempName2\", \"apiVehicleTempName2\")"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "apiVehicleTempName2",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/resources/:vehicleId/temporaryname",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"resources",
+						":vehicleId",
+						"temporaryname"
+					],
+					"variable": [
+						{
+							"key": "vehicleId",
+							"value": "{{vehicleId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 5-Allocate Vehicle Again",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"incidentID\")\r",
+							"pm.collectionVariables.get(\"vehicleId\")\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(pm.collectionVariables.get(\"vehicleName\")+ \" is allocated again to \" +pm.collectionVariables.get(\"incidentA\"), function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"resourceIds\": [\r\n        \"{{vehicleId}}\"\r\n    ],\r\n    \"incidentId\": \"{{incidentId}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/incidents/:incidentId/allocatedResources/multiple",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"incidents",
+						":incidentId",
+						"allocatedResources",
+						"multiple"
+					],
+					"variable": [
+						{
+							"key": "incidentId",
+							"value": "{{incidentId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "eITI Authenticate",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json()\r",
+							"pm.test(\"Login is successful\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.expect(response).to.be.an(\"object\")\r",
+							"    pm.expect(response).to.have.any.keys('access_token')\r",
+							"});\r",
+							"\r",
+							"pm.collectionVariables.set(\"eITI_access_token\", response.access_token)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Basic QkFPOjg2MTczZTE2LWMyMDctNGM3OC04ZTgwLWFmNDBlYWFlNmY5NA==",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "ApiTestUser",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "ApiTestUser",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://eiti.{{system}}-main.apps.ef-dev.at/v1/registerSession",
+					"protocol": "http",
+					"host": [
+						"eiti",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"v1",
+						"registerSession"
+					]
+				},
+				"description": "Login eITI of any system\n\nYou need to write the system name you would like to test in the following area.\n\n- Click on EOCS-T3417 folder on left.\n- Click Variables tab.\n- Enter any system (for ex. master, titan, vega, etc.) in Current value field.\n    \n\n<img src=\"https://content.pstmn.io/23e67e88-f75b-40aa-bb3f-7580e4128b84/aW1hZ2UucG5n\">\n\nClick on the picture to see it bigger.\n\nAfter sending request succesfully, check if the 'access_token' from response exist as in the following picture.\n\nAfter opening EOCS-T3417 directory and variables tab, look for eiti_access_token variable, if it does not exist ,add it and paste the copied access token value from first request in Current value field.\n\n<img src=\"https://content.pstmn.io/ae8bbe9a-d4fd-4aa7-8bee-e95cd9f05a2c/aW1hZ2UucG5n\" alt=\"Adding%20access%20token\" width=\"1768\" height=\"306\">\n\n<img src=\"https://content.pstmn.io/66146ce5-e2b3-4276-bbd6-b3a64565f408/aW1hZ2UucG5n\" alt=\"Auth%20type%20of%20other%20requests\">\n\nFor every request after eITI Authenticate request, you select Bearer token as Authorization type and write the token field {{eITI_access_token}} as in the above picture.\n\nIf you get 403 code after sending this request, it means the user you are using has no Default Authorization Profile. You should assign one."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 7-Get Incident",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Request is successful\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Validate assigned resources array if it has 2 elements\", function () {\r",
+							"    \r",
+							"    pm.expect(jsonData.assignedResources).to.exist.and.to.be.an('array').and.to.have.lengthOf.at.least(2, \"There are 2 assigned vehicle types\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"pm.test(\"Response body has \"+pm.collectionVariables.get(\"Type1\")+\" type1 \", function () {\r",
+							"    \r",
+							"    pm.expect(jsonData.assignedResources[0].assignedVehicleTypes[0].name).to.eql(pm.collectionVariables.get(\"Type1\"));\r",
+							"\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response body has \"+pm.collectionVariables.get(\"tempName1\")+ \" tempName1\" , function () {\r",
+							"    \r",
+							"   \r",
+							"    pm.expect(jsonData.assignedResources[0].tempName).to.eql(pm.collectionVariables.get(\"tempName1\"));\r",
+							"\r",
+							"\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response body has \"+pm.collectionVariables.get(\"Type2\")+ \" type2 \", function () {\r",
+							"    \r",
+							"  \r",
+							"    pm.expect(jsonData.assignedResources[1].assignedVehicleTypes[0].name).to.eql(pm.collectionVariables.get(\"Type2\"));\r",
+							" \r",
+							"\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response body has \"+pm.collectionVariables.get(\"tempName2\")+\" tempName2 \", function () {\r",
+							"    \r",
+							"   \r",
+							"    pm.expect(jsonData.assignedResources[1].tempName).to.eql(pm.collectionVariables.get(\"tempName2\"));\r",
+							"\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{eITI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://eiti.{{system}}-main.apps.ef-dev.at/incidents/:incidentId",
+					"protocol": "http",
+					"host": [
+						"eiti",
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"incidents",
+						":incidentId"
+					],
+					"variable": [
+						{
+							"key": "incidentId",
+							"value": "{{incidentId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PostConditions-Reset Temp Name of the Vehicle",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Temporary name is reset\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/resources/:vehicleId/temporaryname",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"resources",
+						":vehicleId",
+						"temporaryname"
+					],
+					"variable": [
+						{
+							"key": "vehicleId",
+							"value": "{{vehicleId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PostConditions-Reset Vehicle Type",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Type of \"+pm.collectionVariables.get(\"vehicleName\")+ \" has changed to original type-> \"+pm.collectionVariables.get(\"Type1\"), function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"vehicleTypeAssignmentId\")\r",
+							"pm.collectionVariables.get(\"Type1Id\")"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"commandCenterId\": \"95a29724-0ef0-4e3e-a3b3-9c6f1602865e\",\r\n    \"id\": \"{{vehicleTypeAssignmentId}}\",\r\n    \"name\": \"{{vehicleName}} -> {{Type2}}\",\r\n    \"parentId\": \"{{vehicleId}}\",\r\n    \"priority\": \"0\",\r\n    \"resourceType\": {\r\n        \"id\": \"{{Type1Id}}\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/vehicles/:vehicleId/vehicletypeassignments/:vehicleTypeAssignmentId",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"vehicles",
+						":vehicleId",
+						"vehicletypeassignments",
+						":vehicleTypeAssignmentId"
+					],
+					"variable": [
+						{
+							"key": "vehicleId",
+							"value": "{{vehicleId}}"
+						},
+						{
+							"key": "vehicleTypeAssignmentId",
+							"value": "{{vehicleTypeAssignmentId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post-Release Vehicle",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"incidentId\")\r",
+							"pm.collectionVariables.get(\"vehicleId\")"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(pm.collectionVariables.get(\"vehicleName\")+ \" (\"+pm.collectionVariables.get(\"tempName2\")+\") is released from \" +pm.collectionVariables.get(\"incidentA\"), function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.collectionVariables.unset(\"vehicleId\")\r",
+							"pm.collectionVariables.unset(\"vehicleName\")\r",
+							"pm.collectionVariables.unset(\"Type1\")\r",
+							"pm.collectionVariables.unset(\"Type1Id\")"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"resourceIds\": [\r\n        \"{{vehicleId}}\"\r\n    ],\r\n    \"incidentId\": \"{{incidentId}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/incidents/:incidentId/allocatedResources/deallocate/multiple",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"incidents",
+						":incidentId",
+						"allocatedResources",
+						"deallocate",
+						"multiple"
+					],
+					"variable": [
+						{
+							"key": "incidentId",
+							"value": "{{incidentId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "system",
+			"value": "",
+			"disabled": true
+		},
+		{
+			"key": "eITI_access_token",
+			"value": ""
+		},
+		{
+			"key": "tempName1",
+			"value": ""
+		},
+		{
+			"key": "incidentId",
+			"value": ""
+		},
+		{
+			"key": "incidentA",
+			"value": ""
+		},
+		{
+			"key": "tempName2",
+			"value": ""
+		},
+		{
+			"key": "Type2",
+			"value": ""
+		},
+		{
+			"key": "vehicleTypeAssignmentId",
+			"value": ""
+		}
+	]
+}

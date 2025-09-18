@@ -1,0 +1,225 @@
+{
+	"info": {
+		"_postman_id": "0d332c58-85bc-4ad0-b63f-d9207e9f09fc",
+		"name": "eOCS-T2662-Update Note field in Incident Brick",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1555972",
+		"_collection_link": "https://interstellar-eocs.postman.co/workspace/866d5192-de97-49ec-82d3-4bd25296b0f1/collection/1555972-0d332c58-85bc-4ad0-b63f-d9207e9f09fc?action=share&creator=1555972&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "System Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json()\r",
+							"\r",
+							"//We are checking here if we logged in successfully and the response is as expected\r",
+							"pm.test(\"Login is successful\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.expect(response).to.be.an(\"object\")\r",
+							"    pm.expect(response).to.have.any.keys('authProfileId')\r",
+							"    pm.expect(response).to.have.any.keys('needPWChange')\r",
+							"\r",
+							"});\r",
+							"\r",
+							"//If we get 403 status code, it means we do not have default auth profile\r",
+							"pm.test('Check Status 403', () => {\r",
+							"    if(pm.response.code === 403) {\r",
+							"        console.log(\"You should set Default Authorization Profile of user first\")\r",
+							"    }\r",
+							"})\r",
+							"\r",
+							"//If we get 400 status code, it means you should logout first\r",
+							"pm.test('Check Status 400', () => {\r",
+							"    if(pm.response.code === 400) {\r",
+							"        console.log(\"You should logout first\")\r",
+							"    }\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\":\"BAO\",\"password\":\"BAO\"}"
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/login",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"login"
+					]
+				},
+				"description": "Please do not delete \"system\" variable. Just update it with the system you are testing in EOCS-T2662-Update Note field in Incident Brick folder ->Variables tab like in the picture.\n\nWith this request, we are logging. I**n this request, I used BAO user but you can change it in Body tab as in the picture.**\n\n<img src=\"https://content.pstmn.io/4f215a7f-edfc-4c90-a453-005e96bb436a/aW1hZ2UucG5n\" alt=\"User%20config\">\n\nIf you get 403 status code, you should select default auth profile for special user you are using.\n\nIf you get 400 status code, you should first logout. Just send Extra Step -Logout from System request."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 3-Update Note in Incident Brick",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    if(pm.response.code === 200) {\r",
+							"        postman.setNextRequest(\"Step 3-Update Note in Incident Brick\")\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response body is ok\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.be.ok;\r",
+							"});\r",
+							"\r",
+							"pm.test('Check Status 400', () => {\r",
+							"    if(pm.response.code === 400) {\r",
+							"        postman.setNextRequest(\"Extra Step -Logout from System\")\r",
+							"    }\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"additionalFields\": [\r\n        {\r\n            \"brickFieldDefinitionType\": \"USER_DEFINED\",\r\n            \"brickFieldType\": \"TEXT\",\r\n            \"fieldName\": \"Info\",\r\n            \"horizontalPercent\": 45,\r\n            \"id\": \"6e47c6d3-77e0-47c3-b4ac-74b004cd89b7@63a5f89f-2318-4150-80d0-95bdb37bfdc3@eac91f91-41d1-4b03-ae5c-ced2e84d9215\",\r\n            \"name\": \"UiBrick UiBrickAdditionalFieldData\",\r\n            \"searchable\": false,\r\n            \"selectionListFreeText\": false,\r\n            \"@type\": \"c5452e03-a09a-4887-b8ca-64b73952636b@com.eurofunk.eocs.uibrick.dto.UiBrickAdditionalFieldData\"\r\n        },\r\n        {\r\n            \"brickFieldDefinitionType\": \"USER_DEFINED\",\r\n            \"brickFieldType\": \"DATETIME\",\r\n            \"fieldName\": \"Tatdatum|Tatzeit\",\r\n            \"horizontalPercent\": 55,\r\n            \"id\": \"6e47c6d3-77e0-47c3-b4ac-74b004cd89b7@63a5f89f-2318-4150-80d0-95bdb37bfdc3@4b9a12a4-f102-4923-8c84-8e7f5d5a12ae\",\r\n            \"identifier\": \"Tatzeitpunkt\",\r\n            \"name\": \"UiBrick UiBrickAdditionalFieldData\",\r\n            \"searchable\": true,\r\n            \"selectionListFreeText\": false,\r\n            \"@type\": \"c5452e03-a09a-4887-b8ca-64b73952636b@com.eurofunk.eocs.uibrick.dto.UiBrickAdditionalFieldData\"\r\n        },\r\n        {\r\n            \"brickFieldDefinitionType\": \"USER_DEFINED\",\r\n            \"brickFieldType\": \"CHECKBOX\",\r\n            \"fieldName\": \"Bewaffnung\",\r\n            \"horizontalPercent\": 20,\r\n            \"id\": \"6e47c6d3-77e0-47c3-b4ac-74b004cd89b7@63a5f89f-2318-4150-80d0-95bdb37bfdc3@ca4e96a5-729f-47fb-a1fb-991d4c4187a4\",\r\n            \"name\": \"UiBrick UiBrickAdditionalFieldData\",\r\n            \"rule\": {\r\n                \"id\": \"4187affe-a602-44fc-9f2a-f0bfe8c7254e\",\r\n                \"name\": \"Raub (Master Keyword (Stichwort))\",\r\n                \"visibleForUser\": false,\r\n                \"securityLevel\": 0\r\n            },\r\n            \"searchable\": false,\r\n            \"selectionListFreeText\": false,\r\n            \"@type\": \"c5452e03-a09a-4887-b8ca-64b73952636b@com.eurofunk.eocs.uibrick.dto.UiBrickAdditionalFieldData\"\r\n        },\r\n        {\r\n            \"brickFieldDefinitionType\": \"USER_DEFINED\",\r\n            \"brickFieldType\": \"TEXT\",\r\n            \"fieldName\": \" \",\r\n            \"horizontalPercent\": 80,\r\n            \"id\": \"6e47c6d3-77e0-47c3-b4ac-74b004cd89b7@63a5f89f-2318-4150-80d0-95bdb37bfdc3@d7533e7c-bd1d-4d3d-891c-a29a46a6fbdd\",\r\n            \"identifier\": \"Bewaffnung\",\r\n            \"name\": \"UiBrick UiBrickAdditionalFieldData\",\r\n            \"rule\": {\r\n                \"id\": \"4187affe-a602-44fc-9f2a-f0bfe8c7254e\",\r\n                \"name\": \"Raub (Master Keyword (Stichwort))\",\r\n                \"visibleForUser\": false,\r\n                \"securityLevel\": 0\r\n            },\r\n            \"searchable\": false,\r\n            \"selectionListFreeText\": false,\r\n            \"@type\": \"c5452e03-a09a-4887-b8ca-64b73952636b@com.eurofunk.eocs.uibrick.dto.UiBrickAdditionalFieldData\"\r\n        },\r\n        {\r\n            \"brickFieldDefinitionType\": \"USER_DEFINED\",\r\n            \"brickFieldType\": \"CHECKBOX\",\r\n            \"fieldName\": \"Personenschaden\",\r\n            \"horizontalPercent\": 20,\r\n            \"id\": \"6e47c6d3-77e0-47c3-b4ac-74b004cd89b7@63a5f89f-2318-4150-80d0-95bdb37bfdc3@686e9441-9472-49ea-ab97-e1004dae02cb\",\r\n            \"name\": \"UiBrick UiBrickAdditionalFieldData\",\r\n            \"rule\": {\r\n                \"id\": \"4187affe-a602-44fc-9f2a-f0bfe8c7254e\",\r\n                \"name\": \"Raub (Master Keyword (Stichwort))\",\r\n                \"visibleForUser\": false,\r\n                \"securityLevel\": 0\r\n            },\r\n            \"searchable\": false,\r\n            \"selectionListFreeText\": false,\r\n            \"@type\": \"c5452e03-a09a-4887-b8ca-64b73952636b@com.eurofunk.eocs.uibrick.dto.UiBrickAdditionalFieldData\"\r\n        },\r\n        {\r\n            \"brickFieldDefinitionType\": \"USER_DEFINED\",\r\n            \"brickFieldType\": \"TEXT\",\r\n            \"fieldName\": \" \",\r\n            \"horizontalPercent\": 80,\r\n            \"id\": \"6e47c6d3-77e0-47c3-b4ac-74b004cd89b7@63a5f89f-2318-4150-80d0-95bdb37bfdc3@77b5042e-e736-428b-a981-1aad27717308\",\r\n            \"identifier\": \"Personenschaden\",\r\n            \"name\": \"UiBrick UiBrickAdditionalFieldData\",\r\n            \"rule\": {\r\n                \"id\": \"4187affe-a602-44fc-9f2a-f0bfe8c7254e\",\r\n                \"name\": \"Raub (Master Keyword (Stichwort))\",\r\n                \"visibleForUser\": false,\r\n                \"securityLevel\": 0\r\n            },\r\n            \"searchable\": false,\r\n            \"selectionListFreeText\": false,\r\n            \"@type\": \"c5452e03-a09a-4887-b8ca-64b73952636b@com.eurofunk.eocs.uibrick.dto.UiBrickAdditionalFieldData\"\r\n        },\r\n        {\r\n            \"brickFieldDefinitionType\": \"USER_DEFINED\",\r\n            \"brickFieldType\": \"CHECKBOX\",\r\n            \"fieldName\": \"Sachschaden\",\r\n            \"horizontalPercent\": 20,\r\n            \"id\": \"6e47c6d3-77e0-47c3-b4ac-74b004cd89b7@63a5f89f-2318-4150-80d0-95bdb37bfdc3@cf5c6688-c091-42ac-bbcc-005eac014a09\",\r\n            \"name\": \"UiBrick UiBrickAdditionalFieldData\",\r\n            \"rule\": {\r\n                \"id\": \"4187affe-a602-44fc-9f2a-f0bfe8c7254e\",\r\n                \"name\": \"Raub (Master Keyword (Stichwort))\",\r\n                \"visibleForUser\": false,\r\n                \"securityLevel\": 0\r\n            },\r\n            \"searchable\": false,\r\n            \"selectionListFreeText\": false,\r\n            \"@type\": \"c5452e03-a09a-4887-b8ca-64b73952636b@com.eurofunk.eocs.uibrick.dto.UiBrickAdditionalFieldData\"\r\n        },\r\n        {\r\n            \"brickFieldDefinitionType\": \"USER_DEFINED\",\r\n            \"brickFieldType\": \"TEXT\",\r\n            \"fieldName\": \" \",\r\n            \"horizontalPercent\": 80,\r\n            \"id\": \"6e47c6d3-77e0-47c3-b4ac-74b004cd89b7@63a5f89f-2318-4150-80d0-95bdb37bfdc3@d861dbbc-0775-4933-b2a1-58a901b22c54\",\r\n            \"identifier\": \"Sachschaden\",\r\n            \"name\": \"UiBrick UiBrickAdditionalFieldData\",\r\n            \"rule\": {\r\n                \"id\": \"4187affe-a602-44fc-9f2a-f0bfe8c7254e\",\r\n                \"name\": \"Raub (Master Keyword (Stichwort))\",\r\n                \"visibleForUser\": false,\r\n                \"securityLevel\": 0\r\n            },\r\n            \"searchable\": false,\r\n            \"selectionListFreeText\": false,\r\n            \"@type\": \"c5452e03-a09a-4887-b8ca-64b73952636b@com.eurofunk.eocs.uibrick.dto.UiBrickAdditionalFieldData\"\r\n        },\r\n        {\r\n            \"brickFieldDefinitionType\": \"USER_DEFINED\",\r\n            \"brickFieldType\": \"CHECKBOX\",\r\n            \"fieldName\": \"Stoffaustritt\",\r\n            \"horizontalPercent\": 20,\r\n            \"id\": \"6e47c6d3-77e0-47c3-b4ac-74b004cd89b7@63a5f89f-2318-4150-80d0-95bdb37bfdc3@8aa7a5e0-b41d-482e-9829-4186f6fc3ff8\",\r\n            \"name\": \"UiBrick UiBrickAdditionalFieldData\",\r\n            \"rule\": {\r\n                \"id\": \"12e05650-3dc5-489f-9c0e-972f34abbd46\",\r\n                \"name\": \"Brand (Master Keyword (Stichwort))\",\r\n                \"visibleForUser\": false,\r\n                \"securityLevel\": 0\r\n            },\r\n            \"searchable\": false,\r\n            \"selectionListFreeText\": false,\r\n            \"@type\": \"c5452e03-a09a-4887-b8ca-64b73952636b@com.eurofunk.eocs.uibrick.dto.UiBrickAdditionalFieldData\"\r\n        },\r\n        {\r\n            \"brickFieldDefinitionType\": \"USER_DEFINED\",\r\n            \"brickFieldType\": \"SELECTIONLIST\",\r\n            \"fieldName\": \"Stoffart\",\r\n            \"horizontalPercent\": 80,\r\n            \"id\": \"6e47c6d3-77e0-47c3-b4ac-74b004cd89b7@63a5f89f-2318-4150-80d0-95bdb37bfdc3@7e3115b4-3ce8-4dfc-a5d9-767fd295b978\",\r\n            \"identifier\": \"STOFF\",\r\n            \"name\": \"UiBrick UiBrickAdditionalFieldData\",\r\n            \"rule\": {\r\n                \"id\": \"12e05650-3dc5-489f-9c0e-972f34abbd46\",\r\n                \"name\": \"Brand (Master Keyword (Stichwort))\",\r\n                \"visibleForUser\": false,\r\n                \"securityLevel\": 0\r\n            },\r\n            \"searchable\": false,\r\n            \"selectionListFreeText\": true,\r\n            \"selectionListId\": \"eb41fbb1-36bc-409c-94e7-07cc57aeb125\",\r\n            \"@type\": \"c5452e03-a09a-4887-b8ca-64b73952636b@com.eurofunk.eocs.uibrick.dto.UiBrickAdditionalFieldData\"\r\n        },\r\n        {\r\n            \"brickFieldDefinitionType\": \"USER_DEFINED\",\r\n            \"brickFieldType\": \"CHECKBOX\",\r\n            \"fieldName\": \"Sachschaden\",\r\n            \"horizontalPercent\": 20,\r\n            \"id\": \"6e47c6d3-77e0-47c3-b4ac-74b004cd89b7@63a5f89f-2318-4150-80d0-95bdb37bfdc3@a631ac14-4d2c-4a35-99d7-5a086ffbc5ca\",\r\n            \"name\": \"UiBrick UiBrickAdditionalFieldData\",\r\n            \"rule\": {\r\n                \"id\": \"12e05650-3dc5-489f-9c0e-972f34abbd46\",\r\n                \"name\": \"Brand (Master Keyword (Stichwort))\",\r\n                \"visibleForUser\": false,\r\n                \"securityLevel\": 0\r\n            },\r\n            \"searchable\": false,\r\n            \"selectionListFreeText\": false,\r\n            \"@type\": \"c5452e03-a09a-4887-b8ca-64b73952636b@com.eurofunk.eocs.uibrick.dto.UiBrickAdditionalFieldData\"\r\n        },\r\n        {\r\n            \"brickFieldDefinitionType\": \"USER_DEFINED\",\r\n            \"brickFieldType\": \"TEXT\",\r\n            \"fieldName\": \" \",\r\n            \"horizontalPercent\": 80,\r\n            \"id\": \"6e47c6d3-77e0-47c3-b4ac-74b004cd89b7@63a5f89f-2318-4150-80d0-95bdb37bfdc3@121296c2-10c5-4428-a3cf-68c05d1bcc2c\",\r\n            \"identifier\": \"Sachschaden\",\r\n            \"name\": \"UiBrick UiBrickAdditionalFieldData\",\r\n            \"rule\": {\r\n                \"id\": \"12e05650-3dc5-489f-9c0e-972f34abbd46\",\r\n                \"name\": \"Brand (Master Keyword (Stichwort))\",\r\n                \"visibleForUser\": false,\r\n                \"securityLevel\": 0\r\n            },\r\n            \"searchable\": false,\r\n            \"selectionListFreeText\": false,\r\n            \"@type\": \"c5452e03-a09a-4887-b8ca-64b73952636b@com.eurofunk.eocs.uibrick.dto.UiBrickAdditionalFieldData\"\r\n        },\r\n        {\r\n            \"brickFieldDefinitionType\": \"USER_DEFINED\",\r\n            \"brickFieldType\": \"CHECKBOX\",\r\n            \"fieldName\": \"Personenschaden\",\r\n            \"horizontalPercent\": 20,\r\n            \"id\": \"6e47c6d3-77e0-47c3-b4ac-74b004cd89b7@63a5f89f-2318-4150-80d0-95bdb37bfdc3@b9adff40-f506-4d08-9c64-11dda9b84a78\",\r\n            \"name\": \"UiBrick UiBrickAdditionalFieldData\",\r\n            \"rule\": {\r\n                \"id\": \"12e05650-3dc5-489f-9c0e-972f34abbd46\",\r\n                \"name\": \"Brand (Master Keyword (Stichwort))\",\r\n                \"visibleForUser\": false,\r\n                \"securityLevel\": 0\r\n            },\r\n            \"searchable\": false,\r\n            \"selectionListFreeText\": false,\r\n            \"@type\": \"c5452e03-a09a-4887-b8ca-64b73952636b@com.eurofunk.eocs.uibrick.dto.UiBrickAdditionalFieldData\"\r\n        },\r\n        {\r\n            \"brickFieldDefinitionType\": \"USER_DEFINED\",\r\n            \"brickFieldType\": \"TEXT\",\r\n            \"fieldName\": \" \",\r\n            \"horizontalPercent\": 80,\r\n            \"id\": \"6e47c6d3-77e0-47c3-b4ac-74b004cd89b7@63a5f89f-2318-4150-80d0-95bdb37bfdc3@32f8a3ba-3378-4b74-9d8f-7fdee6587bc5\",\r\n            \"identifier\": \"Personenschaden\",\r\n            \"name\": \"UiBrick UiBrickAdditionalFieldData\",\r\n            \"rule\": {\r\n                \"id\": \"12e05650-3dc5-489f-9c0e-972f34abbd46\",\r\n                \"name\": \"Brand (Master Keyword (Stichwort))\",\r\n                \"visibleForUser\": false,\r\n                \"securityLevel\": 0\r\n            },\r\n            \"searchable\": false,\r\n            \"selectionListFreeText\": false,\r\n            \"@type\": \"c5452e03-a09a-4887-b8ca-64b73952636b@com.eurofunk.eocs.uibrick.dto.UiBrickAdditionalFieldData\"\r\n        },\r\n        {\r\n            \"brickFieldDefinitionType\": \"USER_DEFINED\",\r\n            \"brickFieldType\": \"CHECKBOX\",\r\n            \"fieldName\": \"Berechtigte(r) erteilt\",\r\n            \"horizontalPercent\": 33,\r\n            \"id\": \"6e47c6d3-77e0-47c3-b4ac-74b004cd89b7@63a5f89f-2318-4150-80d0-95bdb37bfdc3@56a225a0-c271-410e-a868-6cd847b87203\",\r\n            \"name\": \"UiBrick UiBrickAdditionalFieldData\",\r\n            \"searchable\": false,\r\n            \"selectionListFreeText\": false,\r\n            \"@type\": \"c5452e03-a09a-4887-b8ca-64b73952636b@com.eurofunk.eocs.uibrick.dto.UiBrickAdditionalFieldData\"\r\n        },\r\n        {\r\n            \"brickFieldDefinitionType\": \"USER_DEFINED\",\r\n            \"brickFieldType\": \"SELECTIONLIST\",\r\n            \"fieldName\": \"Anrede\",\r\n            \"horizontalPercent\": 20,\r\n            \"id\": \"6e47c6d3-77e0-47c3-b4ac-74b004cd89b7@63a5f89f-2318-4150-80d0-95bdb37bfdc3@ddc59d6a-1de2-49c6-891a-234018489ecb\",\r\n            \"identifier\": \"Salutation\",\r\n            \"name\": \"UiBrick UiBrickAdditionalFieldData\",\r\n            \"searchable\": false,\r\n            \"selectionListFreeText\": false,\r\n            \"selectionListId\": \"b5eb98b7-682b-49bd-a9dd-8ffff4bf4468\",\r\n            \"@type\": \"c5452e03-a09a-4887-b8ca-64b73952636b@com.eurofunk.eocs.uibrick.dto.UiBrickAdditionalFieldData\"\r\n        },\r\n        {\r\n            \"brickFieldDefinitionType\": \"USER_DEFINED\",\r\n            \"brickFieldType\": \"CHECKBOX\",\r\n            \"fieldName\": \"Berechtigter Erreicht\",\r\n            \"horizontalPercent\": 100,\r\n            \"id\": \"6e47c6d3-77e0-47c3-b4ac-74b004cd89b7@63a5f89f-2318-4150-80d0-95bdb37bfdc3@aa5f6626-c840-4f4d-8729-dfb765f1136e\",\r\n            \"name\": \"UiBrick UiBrickAdditionalFieldData\",\r\n            \"rule\": {\r\n                \"id\": \"77ca48fe-59c9-4cae-b435-0f38b1c39ee4\",\r\n                \"name\": \"Diebstahl (Master Keyword (Stichwort))\",\r\n                \"visibleForUser\": false,\r\n                \"securityLevel\": 0\r\n            },\r\n            \"searchable\": false,\r\n            \"selectionListFreeText\": false,\r\n            \"@type\": \"c5452e03-a09a-4887-b8ca-64b73952636b@com.eurofunk.eocs.uibrick.dto.UiBrickAdditionalFieldData\"\r\n        },\r\n        {\r\n            \"brickFieldDefinitionType\": \"USER_DEFINED\",\r\n            \"brickFieldType\": \"CHECKBOX\",\r\n            \"fieldName\": \"Sachschaden\",\r\n            \"horizontalPercent\": 100,\r\n            \"id\": \"6e47c6d3-77e0-47c3-b4ac-74b004cd89b7@63a5f89f-2318-4150-80d0-95bdb37bfdc3@0723bdc3-7c6d-4477-a44f-2dd8ce1c3b90\",\r\n            \"name\": \"UiBrick UiBrickAdditionalFieldData\",\r\n            \"rule\": {\r\n                \"id\": \"1114752f-226f-4c4b-9dc8-0ce38cec2bad\",\r\n                \"name\": \"Bahnunfall (Detail Keyword (Schlagwort))\",\r\n                \"visibleForUser\": false,\r\n                \"securityLevel\": 0\r\n            },\r\n            \"searchable\": false,\r\n            \"selectionListFreeText\": false,\r\n            \"@type\": \"c5452e03-a09a-4887-b8ca-64b73952636b@com.eurofunk.eocs.uibrick.dto.UiBrickAdditionalFieldData\"\r\n        },\r\n        {\r\n            \"brickFieldDefinitionType\": \"USER_DEFINED\",\r\n            \"brickFieldType\": \"DATETIME\",\r\n            \"fieldName\": \"Einsatzende - TEST\",\r\n            \"horizontalPercent\": 100,\r\n            \"id\": \"6e47c6d3-77e0-47c3-b4ac-74b004cd89b7@63a5f89f-2318-4150-80d0-95bdb37bfdc3@e1d9bacb-6d29-43c0-a5a9-4aa4cc7fbf24\",\r\n            \"identifier\": \"Einsatzende\",\r\n            \"name\": \"UiBrick UiBrickAdditionalFieldData\",\r\n            \"searchable\": false,\r\n            \"selectionListFreeText\": false,\r\n            \"@type\": \"c5452e03-a09a-4887-b8ca-64b73952636b@com.eurofunk.eocs.uibrick.dto.UiBrickAdditionalFieldData\"\r\n        }\r\n    ],\r\n    \"blueLightAllowed\": false,\r\n    \"column\": 1,\r\n    \"created\": \"2023-06-30T05:36:52.320Z\",\r\n    \"definitionId\": \"6e47c6d3-77e0-47c3-b4ac-74b004cd89b7@63a5f89f-2318-4150-80d0-95bdb37bfdc3\",\r\n    \"fieldValidationErrors\": [],\r\n    \"id\": \"284e1686-5854-42f0-a537-8ade0cabfe36\",\r\n    \"incident\": {\r\n        \"id\": \"833fb8e9-6932-470a-a1c3-38575109362e\",\r\n        \"name\": \"\",\r\n        \"visibleForUser\": false,\r\n        \"securityLevel\": 0\r\n    },\r\n    \"keywords\": {\r\n        \"3ffcb782-0f20-4e58-af07-6565f896061a\": [\r\n            {\r\n                \"id\": \"3c5782a2-f102-4e39-9581-4a3b1d61dcf3\",\r\n                \"name\": \"skeyword\",\r\n                \"visibleForUser\": false,\r\n                \"securityLevel\": 0\r\n            }\r\n        ],\r\n        \"fe5af110-27a2-4955-a180-4df2c2595844\": [\r\n            {\r\n                \"id\": \"77ca48fe-59c9-4cae-b435-0f38b1c39ee4\",\r\n                \"name\": \"Diebstahl\",\r\n                \"visibleForUser\": false,\r\n                \"securityLevel\": 0\r\n            }\r\n        ],\r\n        \"19546e45-d9be-4112-a1d6-9e53b96f000f\": [],\r\n        \"8990516c-0fd9-47d6-a98c-e11675c21e20\": [],\r\n        \"bf1079ae-8384-490f-b7ae-c06dabc4e28d\": [],\r\n        \"ab692e08-d67f-44f8-b3be-26e31692e836\": [],\r\n        \"cce0242a-617c-4102-92b0-5e6890193dff\": [],\r\n        \"470f0775-17ed-408a-8856-37ce863e4be4\": []\r\n    },\r\n    \"modified\": \"2023-06-30T09:38:02.167Z\",\r\n    \"name\": \"UiBrick UiBrickIncidentKeywordData\",\r\n    \"note\": \"BAO new note from Postman\",\r\n    \"prio\": 2,\r\n    \"removable\": false,\r\n    \"titleFormat\": \"Incident\",\r\n    \"titleValues\": [\r\n        \"Incident\"\r\n    ],\r\n    \"validateWithoutException\": false,\r\n    \"version\": 0,\r\n    \"@type\": \"3f5dfd0a-e41e-42b8-a311-3b2137ff0d01@com.eurofunk.eocs.uibrick.dto.UiBrickIncidentKeywordData\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/incidents/:incidentId/uibrickdata/:ubrickId",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"incidents",
+						":incidentId",
+						"uibrickdata",
+						":ubrickId"
+					],
+					"variable": [
+						{
+							"key": "incidentId",
+							"value": "833fb8e9-6932-470a-a1c3-38575109362e"
+						},
+						{
+							"key": "ubrickId",
+							"value": "284e1686-5854-42f0-a537-8ade0cabfe36"
+						}
+					]
+				},
+				"description": "With this request, we are updating Note field in Incident Brick.\n\nPUT request uses 2 IDs: one Incident ID and another one UIBrickdata but you have to look up in devtools in the browser and update IncidentId. Most probably, ubrickid should be same but it would be better, if you check it.\n\nYou can first set a note via browser in Incident and find this request in devtools and copy the request body from there. Then you can paste it in Body tab of this request.\n\nWith this request I only intended to change Note field with.\n\nIn this request in Body tab, you can change the following as you wish.\n\n\"note\": \"BAO new note from Postman\""
+			},
+			"response": []
+		},
+		{
+			"name": "Extra Step -Logout from System",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"You logged out successfuly\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"     \r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://{{system}}-main.apps.ef-dev.at/api/logout",
+					"protocol": "https",
+					"host": [
+						"{{system}}-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"logout"
+					]
+				},
+				"description": "This request for logging out. You should see 200 OK status code."
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "system",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

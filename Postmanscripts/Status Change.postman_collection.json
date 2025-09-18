@@ -1,0 +1,472 @@
+{
+	"info": {
+		"_postman_id": "bb8873da-f7da-46ac-a480-061a9136001a",
+		"name": "Status Change",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1555972",
+		"_collection_link": "https://interstellar-eocs.postman.co/workspace/Automation~66c7db3f-9f04-48e3-b9a3-43702bf4ebaf/collection/1555972-bb8873da-f7da-46ac-a480-061a9136001a?action=share&creator=1555972&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "Step 1-System Login Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json()\r",
+							"\r",
+							"//We are checking here if we logged in successfully and the response is as expected\r",
+							"pm.test(\"Login is successful\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.expect(response).to.be.an(\"object\")\r",
+							"    pm.expect(response).to.have.any.keys('authProfileId')\r",
+							"    pm.expect(response).to.have.any.keys('needPWChange')\r",
+							"\r",
+							"});\r",
+							"\r",
+							"//If we get 403 status code, it means we do not have default auth profile\r",
+							"pm.test('Check Status 403', () => {\r",
+							"    if(pm.response.code === 403) {\r",
+							"        console.log(\"You should set Default Authorization Profile of user first\")\r",
+							"    }\r",
+							"})\r",
+							"\r",
+							"//If we get 400 status code, it means you should logout first\r",
+							"pm.test('Check Status 400', () => {\r",
+							"    if(pm.response.code === 400) {\r",
+							"        console.log(\"You should logout first\")\r",
+							"    }\r",
+							"})\r",
+							"\r",
+							"//If we get 503 status code, it means system is down\r",
+							"pm.test('Check Status 503', () => {\r",
+							"    if(pm.response.code === 503) {\r",
+							"        console.log(\"System is down\")\r",
+							"    }\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\":\"skirtactest\",\"password\":\"skirtactest\"}"
+				},
+				"url": {
+					"raw": "https://eros-main.apps.ef-dev.at/api/login",
+					"protocol": "https",
+					"host": [
+						"eros-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"login"
+					]
+				},
+				"description": "Please do not delete \"system\" variable. Just update it with the system you are testing in EOCS-T1661 folder Variables tab like in the picture.\n\n<img src=\"https://content.pstmn.io/6eaba942-7f7c-44ce-9995-c8193ab0ca19/aW1hZ2UucG5n\" alt=\"Variables%20of%20collection\">\n\nWith this request, we are logging with special user. **In this request, I used BAO user but you can change it in Body tab as in the picture.**\n\n<img src=\"https://content.pstmn.io/4f215a7f-edfc-4c90-a453-005e96bb436a/aW1hZ2UucG5n\" alt=\"Special%20user%20config\">\n\nIf you get 403 status code, you should select default auth profile for special user you are using.\n\nIf you get 400 status code, you should first logout. Just send Extra Step -Logout from System request."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 1.2-Get Vehicle Copy 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"vehicleId\", pm.response.json().elements[0].id)\r",
+							"pm.collectionVariables.set(\"vehicleName\", pm.response.json().elements[0].name)\r",
+							"\r",
+							"pm.test(\"There is at least one vehicle which is FREE, with FMS Status 1 or 2 and has type \" +pm.collectionVariables.get(\"Type1\")+ \" and it is \"+pm.collectionVariables.get(\"vehicleName\"), function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.response.to.be.ok\r",
+							"});\r",
+							"\r",
+							"//If we get 403 status code, it means we do not have default auth profile\r",
+							"pm.test('Check Status 403', () => {\r",
+							"    if(pm.response.code === 403) {\r",
+							"        console.log(\"You should set Default Authorization Profile of user first\")\r",
+							"    }\r",
+							"})\r",
+							"\r",
+							"//If we get 400 status code, it means you should logout first\r",
+							"pm.test('Check Status 400', () => {\r",
+							"    if(pm.response.code === 400) {\r",
+							"        console.log(\"You should logout first\")\r",
+							"    }\r",
+							"})\r",
+							"\r",
+							"//If we get 503 status code, it means system is down\r",
+							"pm.test('Check Status 503', () => {\r",
+							"    if(pm.response.code === 503) {\r",
+							"        console.log(\"System is down\")\r",
+							"    }\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://eros-main.apps.ef-dev.at/api/vehicles?ermSearch=true&allocationStatus%5B0%5D=FREE&statusId%5B0%5D=9be806aa-cbc7-4294-831e-13c0eec99df2&startRow=0&size=50&sort=allocationStatus%3Adesc",
+					"protocol": "https",
+					"host": [
+						"eros-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"vehicles"
+					],
+					"query": [
+						{
+							"key": "ermSearch",
+							"value": "true"
+						},
+						{
+							"key": "allocationStatus%5B0%5D",
+							"value": "FREE"
+						},
+						{
+							"key": "statusId%5B0%5D",
+							"value": "9be806aa-cbc7-4294-831e-13c0eec99df2"
+						},
+						{
+							"key": "typeId%5B0%5D",
+							"value": "94f0b18e-108d-4fc4-a33a-b9eece77c22f",
+							"disabled": true
+						},
+						{
+							"key": "startRow",
+							"value": "0"
+						},
+						{
+							"key": "size",
+							"value": "50"
+						},
+						{
+							"key": "sort",
+							"value": "allocationStatus%3Adesc"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 6-Set status to the Vehicle Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"vehicleId\")\r",
+							"\r",
+							"let currentTime = Math.floor(Date.now() / 1000)\r",
+							"\r",
+							"pm.collectionVariables.set(\"currentTime\", currentTime)"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"The status of vehicle is updated\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\"{{vehicleId}}\"]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://eros-main.apps.ef-dev.at/api/resourcestate/setStatus/216665ab-2f5c-4e43-bbfc-4b68344d8e5c",
+					"protocol": "https",
+					"host": [
+						"eros-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"resourcestate",
+						"setStatus",
+						"216665ab-2f5c-4e43-bbfc-4b68344d8e5c"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "eITI BAO Authenticate Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json()\r",
+							"//We are checking here if BAO user logged in successfully\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"//We are checking here if response is as expected\r",
+							"pm.test(\"Login is successful\", ()=>{\r",
+							"    pm.expect(response).to.be.an(\"object\")\r",
+							"    pm.expect(response).to.have.any.keys('access_token')\r",
+							"    \r",
+							"})\r",
+							"\r",
+							"//If we get 503 status code, it means system is down\r",
+							"pm.test('Check Status 503', () => {\r",
+							"    if(pm.response.code === 503) {\r",
+							"        console.log(\"System is down\")\r",
+							"    }\r",
+							"})\r",
+							"\r",
+							"pm.collectionVariables.set(\"eITI_access_token\", response.access_token)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Basic QkFPOjg2MTczZTE2LWMyMDctNGM3OC04ZTgwLWFmNDBlYWFlNmY5NA==",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "BAO",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "BAO",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://eiti.eros-main.apps.ef-dev.at/v1/registerSession",
+					"protocol": "http",
+					"host": [
+						"eiti",
+						"eros-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"v1",
+						"registerSession"
+					]
+				},
+				"description": "Login eITI of any system\n\nYou need to write the system name you would like to test in the following area.\n\n1. Click on EOCS-T2714 folder on left.\n2. Click Variables tab.\n3. Enter any system (for ex. master, titan, vega, etc.) in Current value field.\n    \n\n<img src=\"https://content.pstmn.io/23e67e88-f75b-40aa-bb3f-7580e4128b84/aW1hZ2UucG5n\" width=\"1132\" height=\"345\">\n\nClick on the picture to see it bigger.\n\nAfter sending request succesfully, check if the 'access_token' from response exist as in the following picture.\n\nAfter opening EOCS-T2714 directory and variables tab, look for eiti_access_token variable, if it does not exist ,add it and paste the copied access token value from first request in Current value field.\n\n<img src=\"https://content.pstmn.io/ae8bbe9a-d4fd-4aa7-8bee-e95cd9f05a2c/aW1hZ2UucG5n\" alt=\"Adding%20access%20token\">\n\nFor every request after eITI Authenticate request, you select Bearer token as Authorization type and write the token field {{eITI_access_token}} as in the above picture.\n\n<img src=\"https://content.pstmn.io/66146ce5-e2b3-4276-bbd6-b3a64565f408/aW1hZ2UucG5n\" alt=\"Authorization%20type%20for%20other%20requests\" width=\"318\" height=\"145\">\n\n_**_\n\nIf you get 403 code after sending this request, it means the user you are using has no Default Authorization Profile. You should assign one."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Vehicle",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"vehicleId\")"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://eros-main.apps.ef-dev.at/api/vehicles?id={{vehicleId}}",
+					"protocol": "http",
+					"host": [
+						"eros-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"api",
+						"vehicles"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "{{vehicleId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Step 8-At least 1 result with time of step 5 after status change Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json()\r",
+							"const count = response.totalCount\r",
+							"\r",
+							"pm.test(\"At least 1 result is returned including the used vehicle(status) \", ()=>{\r",
+							"pm.expect(count).to.be.at.least(1)\r",
+							"pm.expect(JSON.stringify(response)).to.have.string(pm.collectionVariables.get(\"vehicleName\"))\r",
+							"})\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.get(\"eITI_access_token\")\r",
+							"pm.collectionVariables.get(\"currentTime\")"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{eITI_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://eiti.eros-main.apps.ef-dev.at/vehicles?modifiedSince={{currentTime}}",
+					"protocol": "http",
+					"host": [
+						"eiti",
+						"eros-main",
+						"apps",
+						"ef-dev",
+						"at"
+					],
+					"path": [
+						"vehicles"
+					],
+					"query": [
+						{
+							"key": "modifiedSince",
+							"value": "{{currentTime}}",
+							"description": "Set time of Step 5"
+						}
+					]
+				},
+				"description": "We are getting updated vehicles from now.\n\nFor UNIX timestamp, you can use this wesite. [https://www.epochconverter.com/](https://www.epochconverter.com/You)\n\nYou can set the current time like Year, month and etc. with Local Time option in this site and copy \"Epoch timestamp\" value.\n\nPlease do not change 'system' variable. Just update the value of it like written in the documentation of first request.\n\nIf you get 401 code, it means you need to log in again and paste the updated access token again.\n\n#### **You have to update the \"svehicle39\" in the code of Tests tab if you like to use other vehicle in the system.**\n\nIn this step, you need to see at least one vehicle which should be your updated one after you changed its state in 5th step."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "vehicleId",
+			"value": ""
+		},
+		{
+			"key": "vehicleName",
+			"value": ""
+		},
+		{
+			"key": "Type1",
+			"value": ""
+		},
+		{
+			"key": "eITI_access_token",
+			"value": ""
+		},
+		{
+			"key": "currentTime",
+			"value": ""
+		}
+	]
+}
